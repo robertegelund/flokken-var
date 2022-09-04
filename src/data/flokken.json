@@ -1,0 +1,79 @@
+{
+	"fagfolk": [
+		{	"id": "flokken2",
+			"data": {
+				"fornavn": "Fredrik",
+				"etternavn": "",
+				"tittel": "Psykolog / Samlivsekspert",
+				"beskrivelse": "Fredrik er født i 1961 og utdannet psykolog.",
+				"bildeUrl": "./images/frode.jpg"
+			}
+		},
+		{	"id": "flokken1",
+			"data": {
+				"fornavn": "Simen",
+				"etternavn": "",
+				"tittel": "Psykologspesialist",
+				"beskrivelse": "Simen er psykolog og spesialist i klinisk voksenpsykologi.",
+				"bildeUrl": "./images/sondre.jpg"
+			}
+		},
+		{	"id": "flokken3",
+			"data": {
+				"fornavn": "Hedda",
+				"etternavn": "",
+				"tittel": "Psykolog / Familieterapeut",
+				"beskrivelse": "Heddda er psykolog, utdannet ved Universitetet i Oslo. Hun har fordypning i familieterapi.",
+				"bildeUrl": "./images/hedvig.jpg"
+			}	
+		},
+		{	"id": "flokken4",
+			"data": {
+				"fornavn": "Caroline",
+				"etternavn": "",
+				"tittel": "Psykolog",
+				"beskrivelse": "Caroline jobber for det meste med emosjonsfokusert terapi. Det er en metode der hun jobber med å bedre tilgangen til dine egne følelser og behov, samt med å endre fastlåste emosjonelle mønstre. Kort sagt kan terapi brukes til å sortere tanker og følelser, bearbeide opplevelser og hendelser og forstå og videreutvikle deg selv.",
+				"bildeUrl": "./images/catrin.jpg"
+			}
+		},
+		{	"id": "flokken5",
+			"data": {
+				"fornavn": "Turid",
+				"etternavn": "",
+				"tittel": "Helsesøster",
+				"beskrivelse": "Turid er utdannet helsesykepleier, og jobber nå med formidling av kunnskap rundt temaene helse, barn og ungdom.",
+				"bildeUrl": "./images/tale.jpg"
+			}
+		},
+		{	"id": "flokken6",
+			"data": {
+				"fornavn": "Ingvard",
+				"etternavn": "",
+				"tittel": "Lege / Professor",
+				"beskrivelse": "Ingvard er en norsk lege og professor.",
+				"bildeUrl": "./images/ingvard.jpg"
+			}
+		}
+	],
+
+	"influensere": [
+		{	"id": "flokken7",
+			"data": {
+				"fornavn": "Aleksander",
+				"etternavn": "",
+				"tittel": "Forfatter / Komiker",
+				"beskrivelse": "Aleksander har oppdaget at mange menn sliter med å finne seg til rette i den tradisjonelle mannsrollen, med de forventningene og kravene som stilles til dem.",
+				"bildeUrl": "./images/adam.jpg"
+			}
+		},
+		{	"id": "flokken8",
+			"data": {
+				"fornavn": "Ingrid",
+				"etternavn": "",
+				"tittel": "Blogger / Sexolog",
+				"beskrivelse": "Ingrid er ei uhøytidelig dame, som stuper ut i nye utfordringer med hodet først.",
+				"bildeUrl": "./images/iselin.jpg"
+			}
+		}
+	]
+}
