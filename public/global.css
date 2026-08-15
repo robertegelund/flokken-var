@@ -79,20 +79,30 @@ ul {
 
 li {
 	padding: 0 3rem;
-	cursor: pointer;
 	text-align: center;
 }
 
-.til-forsiden {
-	font-size: 2.3rem;
+nav li button {
+	border: none;
+	background: transparent;
+	padding: 0;
+	cursor: pointer;
+	font-size: inherit;
+	color: inherit;
+	margin-top: 0;
 }
 
-.til-forsiden:active {
-	color: gold;
+nav li button:hover {
+	text-decoration: underline;
+}
+
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+	outline: 0.25rem solid #005fcc;
+	outline-offset: 0.2rem;
 }
 
 li:last-child {
-	cursor: none;
+	cursor: auto;
 }
 
 nav input {

@@ -1,5 +1,5 @@
 <script>
-    import { db } from "../firebase.js"
+    import { db } from "../utils/firebase.js"
     import FlokkHistorier from "../components/FlokkHistorier.svelte"
     import HistorieSkjema from "../components/HistorieSkjema.svelte"
     import Hovedmeny from "../components/Hovedmeny.svelte"
@@ -7,9 +7,14 @@
     let aktivFane = "FlokkHistorier"
     const endreFane = (valgtFane) => aktivFane = valgtFane
     export let endreSide
+    export let aktivSide
     const flokkHistorier = db.collection("flokkhistorier")
     let flokkHistorieUtvalg = []
     let historieSokeord = ""
+    const historieFaner = [
+        { id: "FlokkHistorier", tekst: "Flokkhistorier" },
+        { id: "HistorieSkjema", tekst: "Del din historie" }
+    ]
     flokkHistorier
         .orderBy("historiePublisert", "desc")
         .onSnapshot(snap => 
@@ -20,21 +25,27 @@
         flokkHistorie.data().historieInnhold.toLowerCase().includes(historieSokeord.toLowerCase()))
 </script>
 
-<nav>
+<nav aria-label="Hovedmeny og historievalg">
     <ul>
-        <Hovedmeny {endreSide} />
-        <li 
-            tabindex=0
-            class:active="{aktivFane === "FlokkHistorier"}"
-            on:click={() => endreFane("FlokkHistorier")}>Flokkhistorier
-        </li>
-        <li 
-            tabindex=0
-            class:active="{aktivFane === "HistorieSkjema"}"
-            on:click={() => endreFane("HistorieSkjema")}>Del din historie
-        </li>
+        <Hovedmeny {endreSide} {aktivSide} />
+        {#each historieFaner as fane}
+            <li>
+                <button
+                    type="button"
+                    class:active={aktivFane === fane.id}
+                    on:click={() => endreFane(fane.id)}
+                >
+                    {fane.tekst}
+                </button>
+            </li>
+        {/each}
         <li>
-            <input bind:value={historieSokeord} on:click={() => endreFane("FlokkHistorier")} placeholder="Søk i historier">
+            <input
+                bind:value={historieSokeord}
+                on:focus={() => endreFane("FlokkHistorier")}
+                placeholder="Søk i historier"
+                aria-label="Søk i historier"
+            >
         </li>
     </ul>  
 </nav>

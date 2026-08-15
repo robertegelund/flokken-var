@@ -1,5 +1,5 @@
 <script>
-	import { db } from "../firebase.js"
+	import { db } from "../utils/firebase.js"
 	export let flokkMedlemID
 	export let flokkMedlemData
 		
@@ -7,6 +7,12 @@
 	let bokData
 	let erSynlig = false
 	const visDetaljer = () => erSynlig = !erSynlig
+	const handleKortTastatur = (event) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault()
+			visDetaljer()
+		}
+	}
 
 	flokkenBoker.onSnapshot(snap => {
 		snap.docs.forEach(doc => {
@@ -16,23 +22,30 @@
 	})})
 </script>
 
-<article tabindex=0 class="flokkmedlem" on:click={visDetaljer}>
+<article
+	tabindex=0
+	class="flokkmedlem"
+	role="button"
+	aria-expanded={erSynlig}
+	on:click={visDetaljer}
+	on:keydown={handleKortTastatur}
+>
     <div class="flokkmedlem-container">
-		<img tabindex=0 class="flokkmedlem-bilde" src="{flokkMedlemData.bildeUrl}" alt="Portrettbilde av ${`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}">
+		<img class="flokkmedlem-bilde" src="{flokkMedlemData.bildeUrl}" alt="Portrettbilde av ${`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}">
 		<div class="flokkmedlem-info">
-			<p tabindex=0 class="flokkmedlem-navn">{`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}</p>
-			<p tabindex=0 class="flokkmedlem-tittel"><em>{flokkMedlemData.tittel}</em></p>
+			<p class="flokkmedlem-navn">{`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}</p>
+			<p class="flokkmedlem-tittel"><em>{flokkMedlemData.tittel}</em></p>
 		</div>
 	</div>
 
 	{#if erSynlig}
-		<button on:click={() => !erSynlig} class="lukk-medlem">X</button>
-		<article tabindex=0 class="flokkmedlem-detaljer" >
-			<p tabindex=0>{flokkMedlemData.beskrivelse}</p> 
+		<button type="button" on:click|stopPropagation={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">X</button>
+		<article class="flokkmedlem-detaljer" on:click|stopPropagation>
+			<p>{flokkMedlemData.beskrivelse}</p> 
 			{#if bokData}
 				<div class="flokkmedlem-bokdetaljer">
-					<p tabindex=0>{flokkMedlemData.fornavn}s seneste utgivelse fra {bokData.utgivelsesår}: "{bokData.boktittel}".</p>
-					<a target="_blank" href="{bokData.bokUrl}"><img class="flokkmedlem-bokdetaljer-bokbilde" src="{bokData.bokbildeUrl}" alt="Side med informasjon om boken {bokData.boktittel}"></a>
+					<p>{flokkMedlemData.fornavn}s seneste utgivelse fra {bokData.utgivelsesår}: "{bokData.boktittel}".</p>
+					<a target="_blank" rel="noopener noreferrer" href="{bokData.bokUrl}"><img class="flokkmedlem-bokdetaljer-bokbilde" src="{bokData.bokbildeUrl}" alt="Side med informasjon om boken {bokData.boktittel}"></a>
 				</div>
 			{/if}
 		</article>
