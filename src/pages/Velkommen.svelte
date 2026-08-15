@@ -1,15 +1,22 @@
 <script>
+    import Hovedmeny from "../components/Hovedmeny.svelte"
     export let endreSide
+    export let aktivSide
 </script>
 
 <section class="velkomstside">
+    <nav aria-label="Hovedmeny" class="velkomstside-meny">
+        <ul>
+            <Hovedmeny {endreSide} {aktivSide} />
+        </ul>
+    </nav>
     <h1 class="velkomstside-overskrift">Flokken <span>vår.</span></h1>
     <p class="velkomstside-avsnitt">Smak på orda. Per Fugelli sa det ikke bare én, men flere ganger. 
         Hva mente han egentlig? Vi lever alle i en og samme flokk. Med våre gleder, med våre sorger. 
         Vi er individer, avhengige av hverandre - i det enkle og utfordrende. En del av samme livsprosjekt. 
         Selv om du føler deg aleine, er du ikke aleine. Du er en del av en flokk. Vår felles flokk. 
-        <a href="#" on:click|preventDefault={endreSide("Historier")}><b>Klikk her for å lese andres og dele dine egne historier.</b></a>
-        <a href="#" on:click|preventDefault={endreSide("Flokken")}><b>Klikk her for å møte fagfolk og influencere.</b></a> 
+        <button type="button" class="lenke-knapp" on:click={() => endreSide("Historier")}><b>Klikk her for å lese andres og dele dine egne historier.</b></button>
+        <button type="button" class="lenke-knapp" on:click={() => endreSide("Flokken")}><b>Klikk her for å møte fagfolk og influencere.</b></button> 
     </p>
 </section>
 
@@ -22,7 +29,13 @@
         filter: opacity(0.95);
         color: white;
         display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+    }
+
+    .velkomstside-meny {
+        margin-top: 2rem;
     }
 
     .velkomstside span {
@@ -49,6 +62,16 @@
         color: gold;
         cursor: pointer;
         text-decoration: underline;
+    }
+
+    .lenke-knapp {
+        border: none;
+        background: transparent;
+        color: inherit;
+        display: block;
+        text-align: left;
+        margin: 0;
+        padding: 0;
     }
 
     @media (max-width: 965px) {

@@ -7,6 +7,9 @@
     let historieTittel;
 
     $: historieEksistererLokalt = localStorage.getItem(historieID) ? true : false
+    $: historiekategorier = Array.isArray(historieData.valgteHistorieKategorier)
+        ? historieData.valgteHistorieKategorier
+        : [historieData.valgteHistorieKategorier]
 
     onMount( () => $historieArtikler = [...$historieArtikler, historie])
 
@@ -27,32 +30,47 @@
             }
         }
     }
+
+    const handleHistorieTastatur = (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            visFullHistorie()
+        }
+    }
 </script>
 
-<article class="flokk-historie" on:click={visFullHistorie} bind:this={historie}>
+<article
+    class="flokk-historie"
+    on:click={visFullHistorie}
+    on:keydown={handleHistorieTastatur}
+    bind:this={historie}
+    tabindex=0
+    role="button"
+    aria-expanded={erSynlig}
+>
     {#if historieEksistererLokalt}
-        <button class="historie-slett" on:click={slettHistorie(historieID)} title="Slett historie">Slett</button>
+        <button type="button" class="historie-slett" on:click|stopPropagation={() => slettHistorie(historieID)} title="Slett historie">Slett</button>
     {/if}
 
-    <h2 tabindex=0 class="historie-tittel" bind:this={historieTittel}>{historieData.historieTittel}</h2>
+    <h2 class="historie-tittel" bind:this={historieTittel}>{historieData.historieTittel}</h2>
       
     {#if historieData.historieBildeUrl}
-        <img tabindex=0 class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse}>
+        <img class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse}>
     {/if}
 
-    <p tabindex=0 class="historie-innhold"><em>{historieData.historieInnhold.slice(0, 40)}</em> [...]</p>
+    <p class="historie-innhold"><em>{historieData.historieInnhold.slice(0, 40)}</em> [...]</p>
     <div class="historie-valgte-kategorier">
-        {#each historieData.valgteHistorieKategorier as valgtHistorieKategori}
-            <span tabindex=0 class="historie-valgt-kategori"> {valgtHistorieKategori} | </span>
+        {#each historiekategorier as valgtHistorieKategori}
+            <span class="historie-valgt-kategori"> {valgtHistorieKategori} | </span>
         {/each}
     </div>
-    <div tabindex=0 class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
+    <div class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
 
     {#if erSynlig}
-        <button on:click={() => !erSynlig} class="lukk-historie">X</button>
-		<article tabindex=0 class="historie-full">
-            <h2 color="white" tabindex=0 class="historie-tittel">{historieData.historieTittel}</h2>
-			<p tabindex=0>{historieData.historieInnhold}</p> 
+        <button type="button" on:click|stopPropagation={() => erSynlig = false} class="lukk-historie" aria-label="Lukk historie">X</button>
+		<article class="historie-full" on:click|stopPropagation>
+            <h2 color="white" class="historie-tittel">{historieData.historieTittel}</h2>
+			<p>{historieData.historieInnhold}</p> 
 		</article>
 	{/if}
 </article>
