@@ -2,14 +2,19 @@
     import { onMount } from "svelte";
     import { slettHistorie } from "../utils/historie-handtering";
     import { historieArtikler } from "../utils/stores.js"
+    import { auth, klarTilInnlogging } from "../utils/firebase.js"
     export let historieID, historieData, index, container
     let historie; let erSynlig = false
     let historieTittel;
 
-    $: historieEksistererLokalt = localStorage.getItem(historieID) ? true : false
+    let brukerUid = null
+    klarTilInnlogging.then(() => brukerUid = auth.currentUser?.uid ?? null)
+
+    $: erMinHistorie = brukerUid !== null && historieData.opprettetAv === brukerUid
     $: historiekategorier = Array.isArray(historieData.valgteHistorieKategorier)
         ? historieData.valgteHistorieKategorier
         : [historieData.valgteHistorieKategorier]
+    $: detaljerId = `historie-detaljer-${historieID}`
 
     onMount( () => $historieArtikler = [...$historieArtikler, historie])
 
@@ -30,48 +35,41 @@
             }
         }
     }
-
-    const handleHistorieTastatur = (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault()
-            visFullHistorie()
-        }
-    }
 </script>
 
-<article
-    class="flokk-historie"
-    on:click={visFullHistorie}
-    on:keydown={handleHistorieTastatur}
-    bind:this={historie}
-    tabindex=0
-    role="button"
-    aria-expanded={erSynlig}
->
-    {#if historieEksistererLokalt}
-        <button type="button" class="historie-slett" on:click|stopPropagation={() => slettHistorie(historieID)} title="Slett historie">Slett</button>
+<article class="flokk-historie" bind:this={historie}>
+    {#if erMinHistorie}
+        <button type="button" class="historie-slett" on:click={() => slettHistorie(historieID)} title="Slett historie">Slett</button>
     {/if}
 
-    <h2 class="historie-tittel" bind:this={historieTittel}>{historieData.historieTittel}</h2>
-      
-    {#if historieData.historieBildeUrl}
-        <img class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse}>
-    {/if}
+    <button
+        type="button"
+        class="flokk-historie-trigger"
+        aria-expanded={erSynlig}
+        aria-controls={detaljerId}
+        on:click={visFullHistorie}
+    >
+        <h2 class="historie-tittel" bind:this={historieTittel}>{historieData.historieTittel}</h2>
 
-    <p class="historie-innhold"><em>{historieData.historieInnhold.slice(0, 40)}</em> [...]</p>
-    <div class="historie-valgte-kategorier">
-        {#each historiekategorier as valgtHistorieKategori}
-            <span class="historie-valgt-kategori"> {valgtHistorieKategori} | </span>
-        {/each}
-    </div>
-    <div class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
+        {#if historieData.historieBildeUrl}
+            <img class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse || ""}>
+        {/if}
+
+        <p class="historie-innhold"><em>{historieData.historieInnhold.slice(0, 40)}</em> [...]</p>
+        <div class="historie-valgte-kategorier">
+            {#each historiekategorier as valgtHistorieKategori}
+                <span class="historie-valgt-kategori"> {valgtHistorieKategori} | </span>
+            {/each}
+        </div>
+        <div class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
+    </button>
 
     {#if erSynlig}
-        <button type="button" on:click|stopPropagation={() => erSynlig = false} class="lukk-historie" aria-label="Lukk historie">X</button>
-		<article class="historie-full" on:click|stopPropagation>
-            <h2 color="white" class="historie-tittel">{historieData.historieTittel}</h2>
-			<p>{historieData.historieInnhold}</p> 
-		</article>
+        <div id={detaljerId} class="historie-full" role="region" aria-label="Full historie: {historieData.historieTittel}">
+            <button type="button" on:click={() => erSynlig = false} class="lukk-historie" aria-label="Lukk historie">X</button>
+            <h2 class="historie-tittel">{historieData.historieTittel}</h2>
+            <p>{historieData.historieInnhold}</p>
+        </div>
 	{/if}
 </article>
 
@@ -87,6 +85,18 @@
 
     .flokk-historie {
         position: relative;
+    }
+
+    .flokk-historie-trigger {
+        display: block;
+        width: 100%;
+        border: none;
+        background: transparent;
+        margin: 0;
+        padding: 0;
+        text-align: inherit;
+        color: inherit;
+        font: inherit;
         cursor: pointer;
     }
 
@@ -136,4 +146,4 @@
     ::-webkit-scrollbar {
         width: 0;
     }
-</style>  
+</style>

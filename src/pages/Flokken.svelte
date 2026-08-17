@@ -1,46 +1,54 @@
 <script>
     import Hovedmeny from "../components/Hovedmeny.svelte"
     import FlokkMedlemmer from "../components/FlokkMedlemmer.svelte"
-    import {velgFlokk} from "../utils/flokk-handtering.js"
+    import { velgFlokk } from "../utils/flokk-handtering.js"
+    import { rute, naviger, settSokIUrl, lenkeKlikk } from "../utils/router.js"
 
-    export let endreSide
-    export let aktivSide
-    let aktivFlokk = "alle"
-    let sokeord = ""
     const flokkValg = [
-        { id: "alle", tekst: "Alle" },
-        { id: "fagfolk", tekst: "Fagfolk" },
-        { id: "influensere", tekst: "Influensere" }
+        { sti: "/fagfolk", id: "alle", tekst: "Alle" },
+        { sti: "/fagfolk/fagfolk", id: "fagfolk", tekst: "Fagfolk" },
+        { sti: "/fagfolk/influensere", id: "influensere", tekst: "Influensere" }
     ]
 
-    $: valgtFlokk = sokeord.length == 0 ? velgFlokk(aktivFlokk) : velgFlokk(sokeord)
+    $: underside = $rute.path.split("/").filter(Boolean)[1]
+    $: aktivFlokk = underside === "fagfolk" || underside === "influensere" ? underside : "alle"
+    $: sokeord = $rute.sok
+    $: valgtFlokk = sokeord.length === 0 ? velgFlokk(aktivFlokk) : velgFlokk(sokeord)
+
+    const oppdaterSokeord = (event) => settSokIUrl(event.target.value)
+    const fokuserSok = () => {
+        if (aktivFlokk !== "alle") naviger("/fagfolk", { erstatt: true, fokuser: false })
+    }
 </script>
 
 <nav aria-label="Hovedmeny og flokkfilter">
     <ul>
-        <Hovedmeny {endreSide} {aktivSide} />
+        <Hovedmeny />
         {#each flokkValg as flokkvalg}
             <li>
-                <button
-                    type="button"
+                <a
+                    href={flokkvalg.sti}
                     class:active={aktivFlokk === flokkvalg.id}
-                    on:click={() => aktivFlokk = flokkvalg.id}
+                    aria-current={aktivFlokk === flokkvalg.id ? "page" : undefined}
+                    on:click={lenkeKlikk(flokkvalg.sti)}
                 >
                     {flokkvalg.tekst}
-                </button>
+                </a>
             </li>
         {/each}
         <li>
-            <input 
-                bind:value={sokeord} 
+            <input
+                value={sokeord}
+                on:input={oppdaterSokeord}
+                on:focus={fokuserSok}
                 placeholder="Søk i fagfolk+influencere"
-                on:focus={() => aktivFlokk = "alle"}
                 aria-label="Søk blant fagfolk og influencere"
             >
         </li>
-    </ul>  
+    </ul>
 </nav>
 
-<section>
+<section id="hovedinnhold" tabindex="-1">
+    <h1 class="sr-only">Fagfolk og influencere</h1>
     <FlokkMedlemmer {valgtFlokk} />
 </section>

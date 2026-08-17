@@ -4,8 +4,9 @@
     let historieInnhold
     let historieKategorier = ["Familie", "Vennskap", "Forhold", "Barndom", "Seksualitet", "Arbeid", "Fritid", "Annet"]
     let valgteHistorieKategorier = ["Familie"]
-    let files = []
-    $: historieBildeFil = files[0]
+    let files
+    $: historieBildeFil = files?.[0]
+    let historieBildeBeskrivelse = ""
     let bildetErOpplastet = false
     let historienErDelt = false
     let opplastingFeil = ""
@@ -38,24 +39,25 @@
         }
 
         bildetErOpplastet = true
-        files = []
+        files = null
         opplastingFeil = ""
     }
 </script>
 
-<form on:submit|preventDefault={async () => {historienErDelt = await lagreHistorie(historieTittel.trim(), historieInnhold.trim(), valgteHistorieKategorier)}}>
+<form on:submit|preventDefault={async () => {historienErDelt = await lagreHistorie(historieTittel.trim(), historieInnhold.trim(), valgteHistorieKategorier, historieBildeBeskrivelse.trim())}}>
     <label for="historie-navn">Hva heter historien din? (Feltet må ha noe innhold)</label>
     <input id="historie-navn" bind:value={historieTittel} autocomplete="off" required/>
     <label for="historie-innhold">Her kan du fortelle din historie (Feltet må ha noe innhold)</label>
     <textarea id="historie-innhold" bind:value={historieInnhold} required></textarea>
-    <label for="historie-velg-kategorier">Velg historiekategori(er)</label>
-    <select id="historie-velg-kategorier" multiple bind:value={valgteHistorieKategorier}>
+    <fieldset class="historie-kategorier">
+        <legend>Velg historiekategori(er)</legend>
         {#each historieKategorier as historieKategori}
-            <option value={historieKategori}>
+            <label class="historie-kategori-valg">
+                <input type="checkbox" bind:group={valgteHistorieKategorier} value={historieKategori}>
                 {historieKategori}
-            </option>
-        {/each} 
-    </select>
+            </label>
+        {/each}
+    </fieldset>
         <label for="historie-bilde-opplasting-input">Last opp et historiebilde (Du velger selv om du vil ha bilde)</label>
             <div class="opplasting-container">
                 <input id="historie-bilde-opplasting-input" type="file" accept="image/png,image/jpeg,image/webp" bind:files>
@@ -72,7 +74,11 @@
             {#if opplastingFeil}
                 <p class="opplasting-feil" aria-live="assertive">{opplastingFeil}</p>
             {/if}
-            
+            {#if bildetErOpplastet}
+                <label for="historie-bilde-beskrivelse">Beskriv bildet med noen ord (for skjermlesere)</label>
+                <input id="historie-bilde-beskrivelse" bind:value={historieBildeBeskrivelse} autocomplete="off" placeholder="F.eks. «To venner som ler sammen utendørs»">
+            {/if}
+
         {#if !historienErDelt}
             <button>Del din historie</button>
         {:else}
@@ -101,13 +107,33 @@
         height: 15rem;
     }
 
-    select {
-        margin-bottom: 3rem;
-        outline: none;
-    }
-
     label {
         margin-bottom: 1.2rem;
+    }
+
+    .historie-kategorier {
+        border: none;
+        padding: 0;
+        margin: 0 0 3rem;
+    }
+
+    .historie-kategorier legend {
+        padding: 0;
+        margin-bottom: 1.2rem;
+        font-size: inherit;
+    }
+
+    .historie-kategori-valg {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+        cursor: pointer;
+    }
+
+    .historie-kategori-valg input {
+        margin: 0;
+        cursor: pointer;
     }
 
     button {
@@ -135,9 +161,9 @@
     .historie-bilde-opplasting-knapp-disabled {
         width: 20%;
         border-radius: 0.5rem;
-        color: #555;
+        color: #222;
         text-align: center;
-        background-color: #999;
+        background-color: #bbb;
         margin-left: 2rem;
     }
 
