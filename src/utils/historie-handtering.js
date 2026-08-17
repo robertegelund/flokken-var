@@ -1,6 +1,8 @@
-import { db, storage, timestamp } from "./firebase.js"
-const flokkHistorier = db.collection("flokkhistorier")
-let historieID = ""
+import { db, storage, timestamp, auth, klarTilInnlogging } from "./firebase.js"
+import { collection, doc, setDoc, deleteDoc } from "firebase/firestore"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+
+const flokkHistorierRef = collection(db, "flokkhistorier")
 let historieBildeUrl = ""
 const maksFilnavnLengde = 80
 
@@ -15,39 +17,31 @@ const lagTrygtFilnavn = (filnavn = "historie") => {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}-${grunnnavn}`
 }
 
-export const lagreHistorie = async (historieTittel, historieInnhold, valgteHistorieKategorier) => {
+export const lagreHistorie = async (historieTittel, historieInnhold, valgteHistorieKategorier, bildebeskrivelse = "") => {
     try {
-        const nyHistorie = await flokkHistorier.doc()
-        const nyHistorieID = await nyHistorie.id
-        
-        await flokkHistorier.doc(nyHistorieID).set({ 
-            historieTittel, historieInnhold, valgteHistorieKategorier, historieBildeUrl, historiePublisert: timestamp 
+        await klarTilInnlogging
+        if (!auth.currentUser) {
+            return false
+        }
+
+        const nyHistorieRef = doc(flokkHistorierRef)
+        const opprettetAv = auth.currentUser.uid
+
+        await setDoc(nyHistorieRef, {
+            historieTittel, historieInnhold, valgteHistorieKategorier, historieBildeUrl, bildebeskrivelse, opprettetAv, historiePublisert: timestamp()
         })
 
-        await window.localStorage.setItem(
-            nyHistorieID,
-            JSON.stringify({
-                historieTittel,
-                historieInnhold,
-                valgteHistorieKategorier,
-                historieBildeUrl,
-                historiePublisert: timestamp
-            })
-        )
-        
-        historieID = nyHistorieID
         return true
     }
     catch (error) {
         console.error(error)
         return false
     }
-}   
+}
 
 export const slettHistorie = (historieID) => {
     try {
-        localStorage.removeItem(historieID)
-        flokkHistorier.doc(historieID).delete()
+        klarTilInnlogging.then(() => deleteDoc(doc(db, "flokkhistorier", historieID)))
     }
     catch(error) {
         console.error(error)
@@ -60,10 +54,15 @@ export const lastOppHistorieBilde = async (historieBildeFil) => {
             return false
         }
 
+        await klarTilInnlogging
+        if (!auth.currentUser) {
+            return false
+        }
+
         const trygtFilnavn = lagTrygtFilnavn(historieBildeFil.name)
-        const sti = storage.ref().child("historie-bilder/" + trygtFilnavn)
-        const opplasting = await sti.put(historieBildeFil, { contentType: historieBildeFil.type })
-        const storageUrl = await opplasting.ref.getDownloadURL()
+        const storageRef = ref(storage, "historie-bilder/" + trygtFilnavn)
+        const opplasting = await uploadBytes(storageRef, historieBildeFil, { contentType: historieBildeFil.type })
+        const storageUrl = await getDownloadURL(opplasting.ref)
         historieBildeUrl = storageUrl
         return true
     }

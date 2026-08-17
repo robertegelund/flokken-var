@@ -1,25 +1,24 @@
-
 <script>
-    export let endreSide
-    export let aktivSide = "Forside"
+    import { rute, lenkeKlikk } from "../utils/router.js"
 
     const hovedmenyValg = [
-        { side: "Forside", tittel: "Forside" },
-        { side: "Historier", tittel: "Historiene" },
-        { side: "Flokken", tittel: "Fagfolk + Influencere" }
+        { sti: "/", tittel: "Forside" },
+        { sti: "/historier", tittel: "Historiene" },
+        { sti: "/fagfolk", tittel: "Fagfolk + Influencere" }
     ]
-</script>
 
+    $: gjeldendeSide = "/" + ($rute.path.split("/").filter(Boolean)[0] ?? "")
+</script>
 
 {#each hovedmenyValg as menyvalg}
     <li>
-        <button
-            type="button"
-            class:active={aktivSide === menyvalg.side}
-            aria-current={aktivSide === menyvalg.side ? "page" : undefined}
-            on:click={() => endreSide(menyvalg.side)}
+        <a
+            href={menyvalg.sti}
+            class:active={gjeldendeSide === menyvalg.sti}
+            aria-current={gjeldendeSide === menyvalg.sti ? "page" : undefined}
+            on:click={lenkeKlikk(menyvalg.sti)}
         >
             {menyvalg.tittel}
-        </button>
+        </a>
     </li>
 {/each}

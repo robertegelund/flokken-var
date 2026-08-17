@@ -1,20 +1,16 @@
 <script>
 	import { db } from "../utils/firebase.js"
+	import { collection, onSnapshot } from "firebase/firestore"
 	export let flokkMedlemID
 	export let flokkMedlemData
-		
-	const flokkenBoker = db.collection("boker")
+
+	const flokkenBokerRef = collection(db, "boker")
 	let bokData
 	let erSynlig = false
 	const visDetaljer = () => erSynlig = !erSynlig
-	const handleKortTastatur = (event) => {
-		if (event.key === "Enter" || event.key === " ") {
-			event.preventDefault()
-			visDetaljer()
-		}
-	}
+	$: detaljerId = `flokkmedlem-detaljer-${flokkMedlemID}`
 
-	flokkenBoker.onSnapshot(snap => {
+	onSnapshot(flokkenBokerRef, snap => {
 		snap.docs.forEach(doc => {
 			if(doc.data().forfatterID === flokkMedlemID) {
 				bokData = doc.data()
@@ -22,33 +18,34 @@
 	})})
 </script>
 
-<article
-	tabindex=0
-	class="flokkmedlem"
-	role="button"
-	aria-expanded={erSynlig}
-	on:click={visDetaljer}
-	on:keydown={handleKortTastatur}
->
-    <div class="flokkmedlem-container">
-		<img class="flokkmedlem-bilde" src="{flokkMedlemData.bildeUrl}" alt="Portrettbilde av ${`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}">
-		<div class="flokkmedlem-info">
-			<p class="flokkmedlem-navn">{`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}</p>
-			<p class="flokkmedlem-tittel"><em>{flokkMedlemData.tittel}</em></p>
+<article class="flokkmedlem">
+	<button
+		type="button"
+		class="flokkmedlem-trigger"
+		aria-expanded={erSynlig}
+		aria-controls={detaljerId}
+		on:click={visDetaljer}
+	>
+		<div class="flokkmedlem-container">
+			<img class="flokkmedlem-bilde" src={flokkMedlemData.bildeUrl} alt="Portrettbilde av {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
+			<div class="flokkmedlem-info">
+				<p class="flokkmedlem-navn">{`${flokkMedlemData.fornavn} ${flokkMedlemData.etternavn}`}</p>
+				<p class="flokkmedlem-tittel"><em>{flokkMedlemData.tittel}</em></p>
+			</div>
 		</div>
-	</div>
+	</button>
 
 	{#if erSynlig}
-		<button type="button" on:click|stopPropagation={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">X</button>
-		<article class="flokkmedlem-detaljer" on:click|stopPropagation>
-			<p>{flokkMedlemData.beskrivelse}</p> 
+		<div id={detaljerId} class="flokkmedlem-detaljer" role="region" aria-label="Detaljer om {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
+			<button type="button" on:click={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">X</button>
+			<p>{flokkMedlemData.beskrivelse}</p>
 			{#if bokData}
 				<div class="flokkmedlem-bokdetaljer">
 					<p>{flokkMedlemData.fornavn}s seneste utgivelse fra {bokData.utgivelsesår}: "{bokData.boktittel}".</p>
-					<a target="_blank" rel="noopener noreferrer" href="{bokData.bokUrl}"><img class="flokkmedlem-bokdetaljer-bokbilde" src="{bokData.bokbildeUrl}" alt="Side med informasjon om boken {bokData.boktittel}"></a>
+					<a target="_blank" rel="noopener noreferrer" href={bokData.bokUrl} aria-label="Side med informasjon om boken {bokData.boktittel} (åpnes i ny fane)"><img class="flokkmedlem-bokdetaljer-bokbilde" src={bokData.bokbildeUrl} alt=""></a>
 				</div>
 			{/if}
-		</article>
+		</div>
 	{/if}
 </article>
 
@@ -64,11 +61,23 @@
     }
 
     .flokkmedlem {
-		display: flex;
 		position: relative;
+	}
+
+	.flokkmedlem-trigger {
+		display: flex;
+		width: 100%;
 		align-items: center;
 		justify-content: center;
 		font-size: 2rem;
+		border: none;
+		background: transparent;
+		margin: 0;
+		padding: 0;
+		color: inherit;
+		text-align: inherit;
+		font-family: inherit;
+		cursor: pointer;
 	}
 
 	.flokkmedlem-container, .flokkmedlem-info {

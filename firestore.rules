@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Publicly readable content. Writes only through the app (see below);
+    // client SDK access is otherwise fully denied by the catch-all at the bottom.
+    match /flokkhistorier/{historieId} {
+      allow read: if true;
+
+      // Anyone signed in (anonymously, no real account needed) can add a story,
+      // but only with the exact fields/shape the app actually submits.
+      allow create: if request.auth != null
+        && request.resource.data.opprettetAv == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+             'historieTittel', 'historieInnhold', 'valgteHistorieKategorier',
+             'historieBildeUrl', 'bildebeskrivelse', 'opprettetAv', 'historiePublisert'
+           ])
+        && request.resource.data.historieTittel is string
+        && request.resource.data.historieTittel.size() > 0
+        && request.resource.data.historieTittel.size() <= 200
+        && request.resource.data.historieInnhold is string
+        && request.resource.data.historieInnhold.size() > 0
+        && request.resource.data.historieInnhold.size() <= 20000
+        && request.resource.data.valgteHistorieKategorier is list
+        && request.resource.data.historieBildeUrl is string
+        && request.resource.data.bildebeskrivelse is string
+        && request.resource.data.historiePublisert == request.time;
+
+      // No editing after the fact.
+      allow update: if false;
+
+      // Only the browser session that created a story (tracked via anonymous
+      // auth uid) can delete it. Older documents without opprettetAv can't be
+      // deleted by anyone through this rule.
+      allow delete: if request.auth != null
+        && resource.data.opprettetAv == request.auth.uid;
+    }
+
+    // Admin-managed content (edited directly in the console), read-only to clients.
+    match /boker/{bokId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
