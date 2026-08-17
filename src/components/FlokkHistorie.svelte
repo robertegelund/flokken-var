@@ -1,11 +1,7 @@
 <script>
-    import { onMount } from "svelte";
     import { slettHistorie } from "../utils/historie-handtering";
-    import { historieArtikler } from "../utils/stores.js"
     import { auth, klarTilInnlogging } from "../utils/firebase.js"
-    export let historieID, historieData, index, container
-    let historie; let erSynlig = false
-    let historieTittel;
+    export let historieID, historieData, erApen, erSkjult, veksleApen
 
     let brukerUid = null
     klarTilInnlogging.then(() => brukerUid = auth.currentUser?.uid ?? null)
@@ -15,29 +11,9 @@
         ? historieData.valgteHistorieKategorier
         : [historieData.valgteHistorieKategorier]
     $: detaljerId = `historie-detaljer-${historieID}`
-
-    onMount( () => $historieArtikler = [...$historieArtikler, historie])
-
-    const visFullHistorie = () => {
-        erSynlig = !erSynlig
-        for(let i=0; i < $historieArtikler.length; i++) {
-            if(i != index && erSynlig) {
-                $historieArtikler[i].style.display = "none";
-                container.style.display = "flex";
-                historie.style.width = "80vw";
-                historieTittel.style.color = "white"
-            }
-            else {
-                $historieArtikler[i].style.display = "";
-                container.style.display = "grid";
-                historie.style.width = "";
-                historieTittel.style.color = "black"
-            }
-        }
-    }
 </script>
 
-<article class="flokk-historie" bind:this={historie}>
+<article class="flokk-historie" class:skjult={erSkjult} class:utvidet={erApen}>
     {#if erMinHistorie}
         <button type="button" class="historie-slett" on:click={() => slettHistorie(historieID)} title="Slett historie">Slett</button>
     {/if}
@@ -45,11 +21,11 @@
     <button
         type="button"
         class="flokk-historie-trigger"
-        aria-expanded={erSynlig}
+        aria-expanded={erApen}
         aria-controls={detaljerId}
-        on:click={visFullHistorie}
+        on:click={veksleApen}
     >
-        <h2 class="historie-tittel" bind:this={historieTittel}>{historieData.historieTittel}</h2>
+        <h2 class="historie-tittel">{historieData.historieTittel}</h2>
 
         {#if historieData.historieBildeUrl}
             <img class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse || ""}>
@@ -64,9 +40,9 @@
         <div class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
     </button>
 
-    {#if erSynlig}
+    {#if erApen}
         <div id={detaljerId} class="historie-full" role="region" aria-label="Full historie: {historieData.historieTittel}">
-            <button type="button" on:click={() => erSynlig = false} class="lukk-historie" aria-label="Lukk historie">X</button>
+            <button type="button" on:click={veksleApen} class="lukk-historie" aria-label="Lukk historie">×</button>
             <h2 class="historie-tittel">{historieData.historieTittel}</h2>
             <p>{historieData.historieInnhold}</p>
         </div>
@@ -75,16 +51,32 @@
 
 <style>
     .lukk-historie {
-        width: 35px; height: 35px;
+        width: 3.6rem; height: 3.6rem;
         border-radius: 50%;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white; font-size: 15px; font-weight: 600;
-        position: absolute; top: -40px; right: -15px; z-index: 100;
-        border: none;
+        background-color: #000;
+        border: 0.2rem solid white;
+        box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.6);
+        color: white; font-size: 2rem; font-weight: 700;
+        line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        position: absolute; top: 1rem; right: 1rem; z-index: 100;
+        cursor: pointer;
     }
 
     .flokk-historie {
         position: relative;
+    }
+
+    .flokk-historie.skjult {
+        display: none;
+    }
+
+    .flokk-historie.utvidet {
+        width: 80vw;
+    }
+
+    .flokk-historie.utvidet .flokk-historie-trigger .historie-tittel {
+        color: white;
     }
 
     .flokk-historie-trigger {
@@ -136,11 +128,12 @@
     .historie-full {
         position: absolute; top: 0;
         width: 100%; padding: 2rem;
+        padding-top: 7rem;
 		border-radius: 2px; z-index: 99;
 		font-size: 1.8rem; color: white;
 		line-height: calc(1.5 * 1.8rem);
 		background-color: rgba(0, 0, 0, 0.8);
-        overflow-y: scroll; cursor: pointer;
+        overflow-y: scroll;
 	}
 
     ::-webkit-scrollbar {

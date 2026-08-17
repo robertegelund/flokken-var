@@ -37,7 +37,7 @@
 
 	{#if erSynlig}
 		<div id={detaljerId} class="flokkmedlem-detaljer" role="region" aria-label="Detaljer om {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
-			<button type="button" on:click={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">X</button>
+			<button type="button" on:click={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">×</button>
 			<p>{flokkMedlemData.beskrivelse}</p>
 			{#if bokData}
 				<div class="flokkmedlem-bokdetaljer">
@@ -51,13 +51,17 @@
 
 <style>
 	.lukk-medlem {
-        width: 35px; height: 35px;
+        width: 3.6rem; height: 3.6rem;
         border-radius: 50%;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white; font-size: 15px; font-weight: 600;
-        position: absolute; top: -65px; right: -15px;
+        background-color: #000;
+        border: 0.2rem solid white;
+        box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.6);
+        color: white; font-size: 2rem; font-weight: 700;
+        line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        position: absolute; top: 1rem; right: 1rem;
         z-index: 100;
-        border: none;
+        cursor: pointer;
     }
 
     .flokkmedlem {
@@ -106,14 +110,13 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
-		position: absolute; right: 0;
-		padding: 1.2rem; z-index: 99;
+		position: absolute; top: 0; right: 0;
+		padding: 1.2rem; padding-top: 7rem; z-index: 99;
 		border-radius: 2px;
 		font-size: 1.8rem; color: white;
 		line-height: calc(1.5 * 1.8rem);
 		overflow-y: scroll;
 		background-color: rgba(0, 0, 0, 0.8);
-		cursor: pointer;
 	}
 
 	.flokkmedlem-detaljer p { margin-bottom: 2.4rem; }
