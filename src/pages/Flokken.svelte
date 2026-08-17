@@ -28,7 +28,6 @@
             <li>
                 <a
                     href={flokkvalg.sti}
-                    class:active={aktivFlokk === flokkvalg.id}
                     aria-current={aktivFlokk === flokkvalg.id ? "page" : undefined}
                     on:click={lenkeKlikk(flokkvalg.sti)}
                 >

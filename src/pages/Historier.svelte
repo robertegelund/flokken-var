@@ -36,7 +36,6 @@
             <li>
                 <a
                     href={fane.sti}
-                    class:active={aktivFane === fane.id}
                     aria-current={aktivFane === fane.id ? "page" : undefined}
                     on:click={lenkeKlikk(fane.sti)}
                 >

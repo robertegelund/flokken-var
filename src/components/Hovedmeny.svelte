@@ -14,7 +14,6 @@
     <li>
         <a
             href={menyvalg.sti}
-            class:active={gjeldendeSide === menyvalg.sti}
             aria-current={gjeldendeSide === menyvalg.sti ? "page" : undefined}
             on:click={lenkeKlikk(menyvalg.sti)}
         >

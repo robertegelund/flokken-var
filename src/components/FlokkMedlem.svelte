@@ -37,7 +37,7 @@
 
 	{#if erSynlig}
 		<div id={detaljerId} class="flokkmedlem-detaljer" role="region" aria-label="Detaljer om {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
-			<button type="button" on:click={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">X</button>
+			<button type="button" on:click={() => erSynlig = false} class="lukk-detaljer-knapp" aria-label="Lukk detaljer">×</button>
 			<p>{flokkMedlemData.beskrivelse}</p>
 			{#if bokData}
 				<div class="flokkmedlem-bokdetaljer">
@@ -50,16 +50,6 @@
 </article>
 
 <style>
-	.lukk-medlem {
-        width: 35px; height: 35px;
-        border-radius: 50%;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white; font-size: 15px; font-weight: 600;
-        position: absolute; top: -65px; right: -15px;
-        z-index: 100;
-        border: none;
-    }
-
     .flokkmedlem {
 		position: relative;
 	}
@@ -94,8 +84,8 @@
 	}
 
     .flokkmedlem-bilde {
-		width: 20rem;
-		height: 20rem;
+		width: clamp(14rem, 10rem + 10vw, 20rem);
+		height: clamp(14rem, 10rem + 10vw, 20rem);
 		object-fit: cover;
 		border-radius: 50%;
 		margin-bottom: 0.3rem;
@@ -106,14 +96,13 @@
 		flex-direction: column;
 		align-items: center;
 		width: 100%;
-		position: absolute; right: 0;
-		padding: 1.2rem; z-index: 99;
+		position: absolute; top: 0; right: 0;
+		padding: 1.2rem; padding-top: 7rem; z-index: 99;
 		border-radius: 2px;
 		font-size: 1.8rem; color: white;
 		line-height: calc(1.5 * 1.8rem);
 		overflow-y: scroll;
 		background-color: rgba(0, 0, 0, 0.8);
-		cursor: pointer;
 	}
 
 	.flokkmedlem-detaljer p { margin-bottom: 2.4rem; }
@@ -123,13 +112,4 @@
 	.flokkmedlem-bokdetaljer p { font-size: 1.6rem; margin-right: 1rem; }
 
 	.flokkmedlem-bokdetaljer img { width: 10rem; }
-	
-	::-webkit-scrollbar { width: 0; }
-
-	@media (max-width: 749px) {
-		.flokkmedlem-bilde {
-			width: 18rem;
-			height: 18rem;
-		}
-	}
 </style>

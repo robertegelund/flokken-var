@@ -34,7 +34,7 @@
 
     .velkomstside-overskrift {
         display: inline-block;
-        font-size: 15rem;
+        font-size: clamp(5rem, 2rem + 10vw, 15rem);
         text-align: center;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
         background-color: rgba(0, 0, 0, 0.25);
@@ -43,14 +43,14 @@
     }
 
     .velkomstside-avsnitt {
-        width: 80%;
-        font-size: 4rem;
+        width: min(80%, 90rem);
+        font-size: clamp(2rem, 1.3rem + 1.4vw, 4rem);
         margin: 2rem;
         padding: 2rem 3rem;
         background-color: rgba(0, 0, 0, 0.5);
         border-radius: 0.2rem;
         letter-spacing: 0.05rem;
-        line-height: calc(4rem * 1.5);
+        line-height: 1.5;
     }
 
     .velkomstside-avsnitt b {
@@ -70,42 +70,4 @@
         text-decoration: none;
     }
 
-    @media (max-width: 965px) {
-        .velkomstside-overskrift {
-            font-size: 12rem;
-        }
-        
-        .velkomstside-avsnitt {
-            font-size: 3rem;
-            line-height: calc(3rem * 1.5)
-        }
-    }
-
-    @media (max-width: 800px) {
-        .velkomstside-overskrift {
-            font-size: 10rem;
-        }
-
-        .velkomstside-avsnitt {
-            font-size: 2.5rem;
-            line-height: calc(2.5rem * 1.5)
-        }
-    }
-
-    @media (max-width: 594px) {
-        .velkomstside-overskrift {
-            font-size: 7rem;
-        }
-    }
-
-    @media (max-width: 400px) {
-        .velkomstside-overskrift {
-            font-size: 5rem;
-        }
-    
-        .velkomstside-avsnitt {
-            font-size: 2rem;
-            line-height: calc(2rem * 1.2)
-        }
-    }
 </style>
