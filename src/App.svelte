@@ -38,9 +38,8 @@
 
 <style>
 	main {
-		width: 100vw;
 		height: 100vh;
-		margin: 0 auto;
+		height: 100dvh;
 	}
 
 	.hopp-til-innhold {

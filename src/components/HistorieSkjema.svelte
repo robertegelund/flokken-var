@@ -7,16 +7,13 @@
     let files
     $: historieBildeFil = files?.[0]
     let historieBildeBeskrivelse = ""
-    let bildetErOpplastet = false
     let historienErDelt = false
     let opplastingFeil = ""
+    let senderInn = false
     const tillatteFiltyper = ["image/jpeg", "image/png", "image/webp"]
     const maksFilstorrelse = 5 * 1024 * 1024
 
     const validerHistorieBilde = (fil) => {
-        if (!fil) {
-            return "Velg en bildefil før opplasting."
-        }
         if (!tillatteFiltyper.includes(fil.type)) {
             return "Du kan kun laste opp JPG, PNG eller WEBP."
         }
@@ -26,25 +23,30 @@
         return ""
     }
 
-    const lastOppValgtHistorieBilde = async () => {
-        opplastingFeil = validerHistorieBilde(historieBildeFil)
+    const sendInnHistorie = async () => {
+        opplastingFeil = historieBildeFil ? validerHistorieBilde(historieBildeFil) : ""
         if (opplastingFeil) {
             return
         }
 
-        const bildeBleLastetOpp = await lastOppHistorieBilde(historieBildeFil)
-        if (!bildeBleLastetOpp) {
-            opplastingFeil = "Opplasting feilet. Prøv igjen."
-            return
+        senderInn = true
+
+        let historieBildeUrl = ""
+        if (historieBildeFil) {
+            historieBildeUrl = await lastOppHistorieBilde(historieBildeFil)
+            if (!historieBildeUrl) {
+                opplastingFeil = "Opplasting av bilde feilet. Prøv igjen."
+                senderInn = false
+                return
+            }
         }
 
-        bildetErOpplastet = true
-        files = null
-        opplastingFeil = ""
+        historienErDelt = await lagreHistorie(historieTittel.trim(), historieInnhold.trim(), valgteHistorieKategorier, historieBildeBeskrivelse.trim(), historieBildeUrl)
+        senderInn = false
     }
 </script>
 
-<form on:submit|preventDefault={async () => {historienErDelt = await lagreHistorie(historieTittel.trim(), historieInnhold.trim(), valgteHistorieKategorier, historieBildeBeskrivelse.trim())}}>
+<form on:submit|preventDefault={sendInnHistorie}>
     <label for="historie-navn">Hva heter historien din? (Feltet må ha noe innhold)</label>
     <input id="historie-navn" bind:value={historieTittel} autocomplete="off" required/>
     <label for="historie-innhold">Her kan du fortelle din historie (Feltet må ha noe innhold)</label>
@@ -58,37 +60,26 @@
             </label>
         {/each}
     </fieldset>
-        <label for="historie-bilde-opplasting-input">Last opp et historiebilde (Du velger selv om du vil ha bilde)</label>
-            <div class="opplasting-container">
-                <input id="historie-bilde-opplasting-input" type="file" accept="image/png,image/jpeg,image/webp" bind:files>
-                <button
-                    type="button"
-                    class="historie-bilde-opplasting-knapp"
-                    class:historie-bilde-opplasting-knapp-disabled={!historieBildeFil || bildetErOpplastet}
-                    on:click={lastOppValgtHistorieBilde}
-                    disabled={!historieBildeFil || bildetErOpplastet}
-                >
-                    {bildetErOpplastet ? "Bildet er opplastet" : "Last opp"}
-                </button>
-            </div>
+        <label for="historie-bilde-opplasting-input">Legg til et historiebilde (Du velger selv om du vil ha bilde)</label>
+            <input id="historie-bilde-opplasting-input" type="file" accept="image/png,image/jpeg,image/webp" bind:files>
             {#if opplastingFeil}
                 <p class="opplasting-feil" aria-live="assertive">{opplastingFeil}</p>
             {/if}
-            {#if bildetErOpplastet}
+            {#if historieBildeFil}
                 <label for="historie-bilde-beskrivelse">Beskriv bildet med noen ord (for skjermlesere)</label>
                 <input id="historie-bilde-beskrivelse" bind:value={historieBildeBeskrivelse} autocomplete="off" placeholder="F.eks. «To venner som ler sammen utendørs»">
             {/if}
 
         {#if !historienErDelt}
-            <button>Del din historie</button>
+            <button disabled={senderInn}>{senderInn ? "Deler historien …" : "Del din historie"}</button>
         {:else}
             <p class="historie-er-delt" aria-live="polite"><b>Historien din er delt. Klikk Historier øverst for å se den.</b></p>
-        {/if} 
+        {/if}
 </form>
 
 <style>
     form {
-        width: 70%;
+        width: min(70rem, 92%);
         display: flex;
         flex-direction: column;
         font-size: 1.8rem;
@@ -137,34 +128,11 @@
     }
 
     button {
-        padding: 0.5rem;
-        width: 40%;
+        padding: 1rem 2rem;
+        min-width: 18rem;
         align-self: center;
         margin-bottom: 2.5rem;
         cursor: pointer;
-    }
-
-    .opplasting-container {
-        display: flex;
-    }
-
-    .historie-bilde-opplasting-knapp {
-        width: 20%;
-        border-radius: 0.5rem;
-        color: white;
-        text-align: center;
-        background-color: #112233;
-        cursor: pointer;
-        margin-left: 2rem;
-    }
-
-    .historie-bilde-opplasting-knapp-disabled {
-        width: 20%;
-        border-radius: 0.5rem;
-        color: #222;
-        text-align: center;
-        background-color: #bbb;
-        margin-left: 2rem;
     }
 
     .opplasting-feil {

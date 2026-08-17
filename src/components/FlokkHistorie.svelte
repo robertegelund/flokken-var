@@ -15,7 +15,20 @@
 
 <article class="flokk-historie" class:skjult={erSkjult} class:utvidet={erApen}>
     {#if erMinHistorie}
-        <button type="button" class="historie-slett" on:click={() => slettHistorie(historieID)} title="Slett historie">Slett</button>
+        <button
+            type="button"
+            class="historie-slett"
+            on:click={() => slettHistorie(historieID)}
+            aria-label="Slett historien {historieData.historieTittel}"
+        >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M4 7h16" />
+                <path d="M9.5 7V4.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V7" />
+                <path d="M18.5 7l-.9 12.6a2 2 0 0 1-2 1.9H8.4a2 2 0 0 1-2-1.9L5.5 7" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+            </svg>
+        </button>
     {/if}
 
     <button
@@ -42,7 +55,7 @@
 
     {#if erApen}
         <div id={detaljerId} class="historie-full" role="region" aria-label="Full historie: {historieData.historieTittel}">
-            <button type="button" on:click={veksleApen} class="lukk-historie" aria-label="Lukk historie">×</button>
+            <button type="button" on:click={veksleApen} class="lukk-detaljer-knapp" aria-label="Lukk historie">×</button>
             <h2 class="historie-tittel">{historieData.historieTittel}</h2>
             <p>{historieData.historieInnhold}</p>
         </div>
@@ -50,19 +63,6 @@
 </article>
 
 <style>
-    .lukk-historie {
-        width: 3.6rem; height: 3.6rem;
-        border-radius: 50%;
-        background-color: #000;
-        border: 0.2rem solid white;
-        box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.6);
-        color: white; font-size: 2rem; font-weight: 700;
-        line-height: 1;
-        display: flex; align-items: center; justify-content: center;
-        position: absolute; top: 1rem; right: 1rem; z-index: 100;
-        cursor: pointer;
-    }
-
     .flokk-historie {
         position: relative;
     }
@@ -72,7 +72,7 @@
     }
 
     .flokk-historie.utvidet {
-        width: 80vw;
+        width: min(80vw, 70rem);
     }
 
     .flokk-historie.utvidet .flokk-historie-trigger .historie-tittel {
@@ -115,14 +115,28 @@
         text-align: right;
     }
 
-    .historie-slett, .historie-delt-dato, .historie-valgt-kategori {
+    .historie-delt-dato, .historie-valgt-kategori {
         font-size: 1.6rem;
         text-align: right;
     }
 
     .historie-slett {
-        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        margin: 0 0 0.8rem auto;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background-color: #b3261e;
+        color: white;
         cursor: pointer;
+    }
+
+    .historie-slett:hover, .historie-slett:focus-visible {
+        background-color: #8f1e17;
     }
 
     .historie-full {
@@ -135,8 +149,4 @@
 		background-color: rgba(0, 0, 0, 0.8);
         overflow-y: scroll;
 	}
-
-    ::-webkit-scrollbar {
-        width: 0;
-    }
 </style>

@@ -37,7 +37,7 @@
 
 	{#if erSynlig}
 		<div id={detaljerId} class="flokkmedlem-detaljer" role="region" aria-label="Detaljer om {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
-			<button type="button" on:click={() => erSynlig = false} class="lukk-medlem" aria-label="Lukk detaljer">×</button>
+			<button type="button" on:click={() => erSynlig = false} class="lukk-detaljer-knapp" aria-label="Lukk detaljer">×</button>
 			<p>{flokkMedlemData.beskrivelse}</p>
 			{#if bokData}
 				<div class="flokkmedlem-bokdetaljer">
@@ -50,20 +50,6 @@
 </article>
 
 <style>
-	.lukk-medlem {
-        width: 3.6rem; height: 3.6rem;
-        border-radius: 50%;
-        background-color: #000;
-        border: 0.2rem solid white;
-        box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.6);
-        color: white; font-size: 2rem; font-weight: 700;
-        line-height: 1;
-        display: flex; align-items: center; justify-content: center;
-        position: absolute; top: 1rem; right: 1rem;
-        z-index: 100;
-        cursor: pointer;
-    }
-
     .flokkmedlem {
 		position: relative;
 	}
@@ -98,8 +84,8 @@
 	}
 
     .flokkmedlem-bilde {
-		width: 20rem;
-		height: 20rem;
+		width: clamp(14rem, 10rem + 10vw, 20rem);
+		height: clamp(14rem, 10rem + 10vw, 20rem);
 		object-fit: cover;
 		border-radius: 50%;
 		margin-bottom: 0.3rem;
@@ -126,13 +112,4 @@
 	.flokkmedlem-bokdetaljer p { font-size: 1.6rem; margin-right: 1rem; }
 
 	.flokkmedlem-bokdetaljer img { width: 10rem; }
-	
-	::-webkit-scrollbar { width: 0; }
-
-	@media (max-width: 749px) {
-		.flokkmedlem-bilde {
-			width: 18rem;
-			height: 18rem;
-		}
-	}
 </style>

@@ -20,7 +20,7 @@
 <style>
     .flokkhistorier-container {
         width: 100%; display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr) );
+        grid-template-columns: repeat(auto-fill, minmax(min(25rem, 100%), 1fr) );
         gap: 3rem 10rem; margin-bottom: 8rem;
     }
 
