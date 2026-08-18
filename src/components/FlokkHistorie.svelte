@@ -1,16 +1,15 @@
 <script>
-    import { slettHistorie } from "../utils/historie-handtering";
-    import { auth, klarTilInnlogging } from "../utils/firebase.js"
-    export let historieID, historieData, erApen, erSkjult, veksleApen
+    import { slettHistorie } from "../utils/historie-handtering.js"
+    import { harSlettenokkel } from "../utils/klient.js"
+    export let historieID, historieData, erApen, erSkjult, veksleApen, oppdaterHistorier
 
-    let brukerUid = null
-    klarTilInnlogging.then(() => brukerUid = auth.currentUser?.uid ?? null)
-
-    $: erMinHistorie = brukerUid !== null && historieData.opprettetAv === brukerUid
-    $: historiekategorier = Array.isArray(historieData.valgteHistorieKategorier)
-        ? historieData.valgteHistorieKategorier
-        : [historieData.valgteHistorieKategorier]
+    $: erMinHistorie = harSlettenokkel(historieID)
     $: detaljerId = `historie-detaljer-${historieID}`
+
+    const handterSlett = async () => {
+        const suksess = await slettHistorie(historieID)
+        if (suksess) oppdaterHistorier()
+    }
 </script>
 
 <article class="flokk-historie" class:skjult={erSkjult} class:utvidet={erApen}>
@@ -18,8 +17,8 @@
         <button
             type="button"
             class="historie-slett"
-            on:click={() => slettHistorie(historieID)}
-            aria-label="Slett historien {historieData.historieTittel}"
+            on:click={handterSlett}
+            aria-label="Slett historien {historieData.title}"
         >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d="M4 7h16" />
@@ -38,26 +37,26 @@
         aria-controls={detaljerId}
         on:click={veksleApen}
     >
-        <h2 class="historie-tittel">{historieData.historieTittel}</h2>
+        <h2 class="historie-tittel">{historieData.title}</h2>
 
-        {#if historieData.historieBildeUrl}
-            <img class="historie-bilde" src="{historieData.historieBildeUrl}" alt={historieData.bildebeskrivelse || ""}>
+        {#if historieData.imageUrl}
+            <img class="historie-bilde" src="{historieData.imageUrl}" alt={historieData.imageDescription || ""}>
         {/if}
 
-        <p class="historie-innhold"><em>{historieData.historieInnhold.slice(0, 40)}</em> [...]</p>
+        <p class="historie-innhold"><em>{historieData.content.slice(0, 40)}</em> [...]</p>
         <div class="historie-valgte-kategorier">
-            {#each historiekategorier as valgtHistorieKategori}
+            {#each historieData.categories as valgtHistorieKategori}
                 <span class="historie-valgt-kategori"> {valgtHistorieKategori} | </span>
             {/each}
         </div>
-        <div class="historie-delt-dato">{historieData.historiePublisert.toDate().toString().slice(4,15)}</div>
+        <div class="historie-delt-dato">{new Date(historieData.publishedAt).toString().slice(4,15)}</div>
     </button>
 
     {#if erApen}
-        <div id={detaljerId} class="historie-full" role="region" aria-label="Full historie: {historieData.historieTittel}">
+        <div id={detaljerId} class="historie-full" role="region" aria-label="Full historie: {historieData.title}">
             <button type="button" on:click={veksleApen} class="lukk-detaljer-knapp" aria-label="Lukk historie">×</button>
-            <h2 class="historie-tittel">{historieData.historieTittel}</h2>
-            <p>{historieData.historieInnhold}</p>
+            <h2 class="historie-tittel">{historieData.title}</h2>
+            <p>{historieData.content}</p>
         </div>
 	{/if}
 </article>

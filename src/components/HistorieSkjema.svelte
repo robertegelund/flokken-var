@@ -1,5 +1,6 @@
 <script>
     import { lagreHistorie, lastOppHistorieBilde } from "../utils/historie-handtering.js"
+    export let onHistorieDelt = () => {}
     let historieTittel
     let historieInnhold
     let historieKategorier = ["Familie", "Vennskap", "Forhold", "Barndom", "Seksualitet", "Arbeid", "Fritid", "Annet"]
@@ -43,6 +44,7 @@
 
         historienErDelt = await lagreHistorie(historieTittel.trim(), historieInnhold.trim(), valgteHistorieKategorier, historieBildeBeskrivelse.trim(), historieBildeUrl)
         senderInn = false
+        if (historienErDelt) onHistorieDelt()
     }
 </script>
 

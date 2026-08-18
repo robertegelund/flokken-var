@@ -1,21 +1,10 @@
 <script>
-	import { db } from "../utils/firebase.js"
-	import { collection, onSnapshot } from "firebase/firestore"
 	export let flokkMedlemID
 	export let flokkMedlemData
 
-	const flokkenBokerRef = collection(db, "boker")
-	let bokData
 	let erSynlig = false
 	const visDetaljer = () => erSynlig = !erSynlig
 	$: detaljerId = `flokkmedlem-detaljer-${flokkMedlemID}`
-
-	onSnapshot(flokkenBokerRef, snap => {
-		snap.docs.forEach(doc => {
-			if(doc.data().forfatterID === flokkMedlemID) {
-				bokData = doc.data()
-			}
-	})})
 </script>
 
 <article class="flokkmedlem">
@@ -39,18 +28,12 @@
 		<div id={detaljerId} class="flokkmedlem-detaljer" role="region" aria-label="Detaljer om {flokkMedlemData.fornavn} {flokkMedlemData.etternavn}">
 			<button type="button" on:click={() => erSynlig = false} class="lukk-detaljer-knapp" aria-label="Lukk detaljer">×</button>
 			<p>{flokkMedlemData.beskrivelse}</p>
-			{#if bokData}
-				<div class="flokkmedlem-bokdetaljer">
-					<p>{flokkMedlemData.fornavn}s seneste utgivelse fra {bokData.utgivelsesår}: "{bokData.boktittel}".</p>
-					<a target="_blank" rel="noopener noreferrer" href={bokData.bokUrl} aria-label="Side med informasjon om boken {bokData.boktittel} (åpnes i ny fane)"><img class="flokkmedlem-bokdetaljer-bokbilde" src={bokData.bokbildeUrl} alt=""></a>
-				</div>
-			{/if}
 		</div>
 	{/if}
 </article>
 
 <style>
-    .flokkmedlem {
+	.flokkmedlem {
 		position: relative;
 	}
 
@@ -106,10 +89,4 @@
 	}
 
 	.flokkmedlem-detaljer p { margin-bottom: 2.4rem; }
-
-	.flokkmedlem-bokdetaljer { display: flex; }
-
-	.flokkmedlem-bokdetaljer p { font-size: 1.6rem; margin-right: 1rem; }
-
-	.flokkmedlem-bokdetaljer img { width: 10rem; }
 </style>

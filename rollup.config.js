@@ -5,10 +5,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
-import replace from '@rollup/plugin-replace';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -21,12 +17,6 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
-		replace({
-			preventAssignment: true,
-			'process.env.FIREBASE_API_KEY': JSON.stringify(process.env.FIREBASE_API_KEY),
-			'process.env.FIREBASE_MESSAGE_ID': JSON.stringify(process.env.FIREBASE_MESSAGE_ID),
-			'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID)
-		}),
 		svelte({
 			compilerOptions: {
 				// enable run-time checks when not in production

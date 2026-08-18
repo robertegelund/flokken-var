@@ -1,35 +1,39 @@
-import { db, storage, timestamp, auth, klarTilInnlogging } from "./firebase.js"
-import { collection, doc, setDoc, deleteDoc } from "firebase/firestore"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { lagreSlettenokkel, hentSlettenokkel } from "./klient.js"
 
-const flokkHistorierRef = collection(db, "flokkhistorier")
-const maksFilnavnLengde = 80
-
-const lagTrygtFilnavn = (filnavn = "historie") => {
-    const filnavnUtenSpesialtegn = filnavn
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9.-]/g, "")
-        .slice(0, maksFilnavnLengde)
-
-    const grunnnavn = filnavnUtenSpesialtegn.length ? filnavnUtenSpesialtegn : "historie"
-    return `${Date.now()}-${Math.random().toString(36).slice(2)}-${grunnnavn}`
+export const hentHistorier = async () => {
+    try {
+        const respons = await fetch("/api/stories")
+        if (!respons.ok) {
+            return []
+        }
+        return await respons.json()
+    }
+    catch (error) {
+        console.error(error)
+        return []
+    }
 }
 
 export const lagreHistorie = async (historieTittel, historieInnhold, valgteHistorieKategorier, bildebeskrivelse = "", historieBildeUrl = "") => {
     try {
-        await klarTilInnlogging
-        if (!auth.currentUser) {
+        const respons = await fetch("/api/stories", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: historieTittel,
+                content: historieInnhold,
+                categories: valgteHistorieKategorier,
+                imageUrl: historieBildeUrl || undefined,
+                imageDescription: bildebeskrivelse || undefined,
+            }),
+        })
+
+        if (!respons.ok) {
             return false
         }
 
-        const nyHistorieRef = doc(flokkHistorierRef)
-        const opprettetAv = auth.currentUser.uid
-
-        await setDoc(nyHistorieRef, {
-            historieTittel, historieInnhold, valgteHistorieKategorier, historieBildeUrl, bildebeskrivelse, opprettetAv, historiePublisert: timestamp()
-        })
-
+        const { id, slettenokkel } = await respons.json()
+        lagreSlettenokkel(id, slettenokkel)
         return true
     }
     catch (error) {
@@ -38,30 +42,39 @@ export const lagreHistorie = async (historieTittel, historieInnhold, valgteHisto
     }
 }
 
-export const slettHistorie = (historieID) => {
-    try {
-        klarTilInnlogging.then(() => deleteDoc(doc(db, "flokkhistorier", historieID)))
+export const slettHistorie = async (historieID) => {
+    const slettenokkel = hentSlettenokkel(historieID)
+    if (!slettenokkel) {
+        return false
     }
-    catch(error) {
+
+    try {
+        const respons = await fetch(`/api/stories/${historieID}`, {
+            method: "DELETE",
+            headers: { "x-slettenokkel": slettenokkel },
+        })
+        return respons.ok
+    }
+    catch (error) {
         console.error(error)
+        return false
     }
 }
 
 export const lastOppHistorieBilde = async (historieBildeFil) => {
     try {
-        if (!historieBildeFil) {
+        const respons = await fetch("/api/pictures", {
+            method: "POST",
+            headers: { "Content-Type": historieBildeFil.type },
+            body: historieBildeFil,
+        })
+
+        if (!respons.ok) {
             return null
         }
 
-        await klarTilInnlogging
-        if (!auth.currentUser) {
-            return null
-        }
-
-        const trygtFilnavn = lagTrygtFilnavn(historieBildeFil.name)
-        const storageRef = ref(storage, "historie-bilder/" + trygtFilnavn)
-        const opplasting = await uploadBytes(storageRef, historieBildeFil, { contentType: historieBildeFil.type })
-        return await getDownloadURL(opplasting.ref)
+        const { url } = await respons.json()
+        return url
     }
     catch (error) {
         console.error(error)
