@@ -8,7 +8,7 @@
         Hva mente han egentlig? Vi lever alle i en og samme flokk. Med våre gleder, med våre sorger.
         Vi er individer, avhengige av hverandre - i det enkle og utfordrende. En del av samme livsprosjekt.
         Selv om du føler deg aleine, er du ikke aleine. Du er en del av en flokk. Vår felles flokk.
-        <a href="/historier" class="lenke-knapp" on:click={lenkeKlikk("/historier")}><b>Les andres og dele dine egne historier.</b></a>
+        <a href="/historier" class="lenke-knapp" on:click={lenkeKlikk("/historier")}><b>Les andres og del dine egne historier.</b></a>
         <a href="/fagfolk" class="lenke-knapp" on:click={lenkeKlikk("/fagfolk")}><b>Møt fagfolk og influencere.</b></a>
     </p>
 </section>
