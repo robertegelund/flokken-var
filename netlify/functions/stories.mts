@@ -34,11 +34,16 @@ export default async (req: Request, context: Context) => {
 
   if (req.method === "POST") {
     const body = await req.json();
-    const { title, content, categories, imageUrl, imageDescription } = body;
+    const { title, content, categories, imageUrl, imageDescription, publishedAt } = body;
 
     if (!title || !content || !Array.isArray(categories) || categories.length === 0) {
       return new Response("title, content and categories are required", { status: 400 });
     }
+
+    // Optional: lets migrated/imported stories keep their original publish
+    // date instead of defaulting to now(). Ignored if missing or invalid.
+    const parsedPublishedAt = publishedAt ? new Date(publishedAt) : null;
+    const gyldigPublishedAt = parsedPublishedAt && !Number.isNaN(parsedPublishedAt.getTime()) ? parsedPublishedAt : undefined;
 
     // Generated server-side, never trusted from the client: this is the only
     // credential that authorizes deleting the story later (see DELETE below).
@@ -53,6 +58,7 @@ export default async (req: Request, context: Context) => {
         imageUrl: imageUrl || null,
         imageDescription: imageDescription || null,
         createdBy: slettenokkel,
+        ...(gyldigPublishedAt ? { publishedAt: gyldigPublishedAt } : {}),
       })
       .returning(offentligeFelter);
 
