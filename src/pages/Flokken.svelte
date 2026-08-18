@@ -1,7 +1,8 @@
 <script>
+    import { onMount } from "svelte"
     import Hovedmeny from "../components/Hovedmeny.svelte"
     import FlokkMedlemmer from "../components/FlokkMedlemmer.svelte"
-    import { velgFlokk } from "../utils/flokk-handtering.js"
+    import { hentFlokkMedlemmer, velgFlokk } from "../utils/flokk-handtering.js"
     import { rute, naviger, settSokIUrl, lenkeKlikk } from "../utils/router.js"
 
     const flokkValg = [
@@ -13,7 +14,16 @@
     $: underside = $rute.path.split("/").filter(Boolean)[1]
     $: aktivFlokk = underside === "fagfolk" || underside === "influensere" ? underside : "alle"
     $: sokeord = $rute.sok
-    $: valgtFlokk = sokeord.length === 0 ? velgFlokk(aktivFlokk) : velgFlokk(sokeord)
+
+    let flokkMedlemmer = []
+    let henterFlokkMedlemmer = true
+
+    onMount(async () => {
+        flokkMedlemmer = await hentFlokkMedlemmer()
+        henterFlokkMedlemmer = false
+    })
+
+    $: valgtFlokk = sokeord.length === 0 ? velgFlokk(flokkMedlemmer, aktivFlokk) : velgFlokk(flokkMedlemmer, sokeord)
 
     const oppdaterSokeord = (event) => settSokIUrl(event.target.value)
     const fokuserSok = () => {
@@ -49,5 +59,18 @@
 
 <section id="hovedinnhold" tabindex="-1">
     <h1 class="sr-only">Fagfolk og influencere</h1>
-    <FlokkMedlemmer {valgtFlokk} />
+    {#if henterFlokkMedlemmer}
+        <p class="flokkmedlemmer-status" aria-live="polite">Laster fagfolk og influencere …</p>
+    {:else if valgtFlokk.length === 0}
+        <p class="flokkmedlemmer-status" aria-live="polite">Ingen treff.</p>
+    {:else}
+        <FlokkMedlemmer {valgtFlokk} />
+    {/if}
 </section>
+
+<style>
+    .flokkmedlemmer-status {
+        font-size: 1.8rem;
+        margin: 4rem 0;
+    }
+</style>

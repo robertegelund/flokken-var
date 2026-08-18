@@ -4,8 +4,8 @@
 </script>
 
 <section class="flokkmedlemmer-container">
-	{#each valgtFlokk as flokkmedlem}
-		<FlokkMedlem flokkMedlemID={flokkmedlem.id} flokkMedlemData={flokkmedlem.data} />
+	{#each valgtFlokk as flokkmedlem (flokkmedlem.id)}
+		<FlokkMedlem flokkMedlemID={flokkmedlem.id} flokkMedlemData={flokkmedlem} />
 	{/each}
 </section>
 
