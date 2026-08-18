@@ -1,6 +1,6 @@
 <script>
-    import { db } from "../utils/firebase.js"
-    import { collection, query, orderBy, onSnapshot } from "firebase/firestore"
+    import { onMount } from "svelte"
+    import { hentHistorier } from "../utils/historie-handtering.js"
     import { rute, naviger, settSokIUrl, lenkeKlikk } from "../utils/router.js"
     import FlokkHistorier from "../components/FlokkHistorier.svelte"
     import HistorieSkjema from "../components/HistorieSkjema.svelte"
@@ -14,14 +14,20 @@
     $: aktivFane = $rute.path === "/historier/del-din-historie" ? "HistorieSkjema" : "FlokkHistorier"
     $: historieSokeord = $rute.sok
 
-    const flokkHistorierQuery = query(collection(db, "flokkhistorier"), orderBy("historiePublisert", "desc"))
     let flokkHistorieUtvalg = []
-    onSnapshot(flokkHistorierQuery, snap =>
-        flokkHistorieUtvalg = snap.docs.map(valgtFlokkHistorie => valgtFlokkHistorie))
+    let henterHistorier = true
 
-    $: valgteFlokkHistorier = flokkHistorieUtvalg.filter( flokkHistorie =>
-        flokkHistorie.data().historieTittel.toLowerCase().includes(historieSokeord.toLowerCase()) ||
-        flokkHistorie.data().historieInnhold.toLowerCase().includes(historieSokeord.toLowerCase()))
+    const oppdaterHistorier = async () => {
+        henterHistorier = true
+        flokkHistorieUtvalg = await hentHistorier()
+        henterHistorier = false
+    }
+
+    onMount(oppdaterHistorier)
+
+    $: valgteFlokkHistorier = flokkHistorieUtvalg.filter( historie =>
+        historie.title.toLowerCase().includes(historieSokeord.toLowerCase()) ||
+        historie.content.toLowerCase().includes(historieSokeord.toLowerCase()))
 
     const oppdaterSokeord = (event) => settSokIUrl(event.target.value)
     const fokuserSok = () => {
@@ -58,8 +64,21 @@
 <section id="hovedinnhold" tabindex="-1">
     <h1 class="sr-only">{aktivFane === "FlokkHistorier" ? "Flokkhistorier" : "Del din historie"}</h1>
     {#if aktivFane === "FlokkHistorier"}
-        <FlokkHistorier {valgteFlokkHistorier} />
+        {#if henterHistorier}
+            <p class="historier-status" aria-live="polite">Laster historier …</p>
+        {:else if valgteFlokkHistorier.length === 0}
+            <p class="historier-status" aria-live="polite">Ingen historier funnet.</p>
+        {:else}
+            <FlokkHistorier {valgteFlokkHistorier} {oppdaterHistorier} />
+        {/if}
     {:else}
-        <HistorieSkjema />
+        <HistorieSkjema onHistorieDelt={oppdaterHistorier} />
     {/if}
 </section>
+
+<style>
+    .historier-status {
+        font-size: 1.8rem;
+        margin: 4rem 0;
+    }
+</style>
